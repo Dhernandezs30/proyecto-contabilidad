@@ -1,0 +1,139 @@
+<!DOCTYPE html<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Equilibrio</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e9ecef;
+            color: #343a40;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: rgb(97, 161, 0);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cálculo del Punto de Equilibrio</h1>
+        <form id="form">
+            <label for="costoFijo">Costo Fijo (Quetzales):</label>
+            <input type="number" id="costoFijo" required>
+
+            <label for="precioVenta">Precio de Venta (Quetzales):</label>
+            <input type="number" id="precioVenta" required>
+
+            <label for="costoVariable">Costo Variable (Quetzales):</label>
+            <input type="number" id="costoVariable" required>
+
+            <button type="submit">Calcular</button>
+        </form>
+
+        <div id="result"></div>
+        <canvas id="myChart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        document.getElementById('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const costoFijo = parseFloat(document.getElementById('costoFijo').value);
+            const precioVenta = parseFloat(document.getElementById('precioVenta').value);
+            const costoVariable = parseFloat(document.getElementById('costoVariable').value);
+
+            // Cálculo del punto de equilibrio en unidades
+            const puntoEquilibrioUnidades = costoFijo / (precioVenta - costoVariable);
+            const puntoEquilibrioQuetzales = puntoEquilibrioUnidades * precioVenta;
+
+            document.getElementById('result').innerHTML = `
+                <h2>Resultados</h2>
+                <p><strong>Punto de Equilibrio en Unidades:</strong> ${Math.ceil(puntoEquilibrioUnidades)}</p>
+                <p><strong>Punto de Equilibrio en Quetzales:</strong> Q${puntoEquilibrioQuetzales.toFixed(2)}</p>
+            `;
+
+            // Gráfica del Punto de Equilibrio
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0', Math.ceil(puntoEquilibrioUnidades), Math.ceil(puntoEquilibrioUnidades * 2)],
+                    datasets: [{
+                        label: 'Ingresos',
+                        borderColor: 'green',
+                        data: [
+                            0,
+                            precioVenta * Math.ceil(puntoEquilibrioUnidades),
+                            precioVenta * Math.ceil(puntoEquilibrioUnidades * 2)
+                        ],
+                        fill: false
+                    }, {
+                        label: 'Costos Totales',
+                        borderColor: 'red',
+                        data: [
+                            costoFijo,
+                            costoFijo + (costoVariable * Math.ceil(puntoEquilibrioUnidades)),
+                            costoFijo + (costoVariable * Math.ceil(puntoEquilibrioUnidades * 2))
+                        ],
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
